@@ -101,7 +101,10 @@ Resources:
             01install_service_watchdog:
               command: !Sub |
                 tar –xvf /tmp/service_watchdog/service_watchdog.tar –C /tmp/service_watchdog/
-
+                mkdir -p /opt/service_watchdog
+                cp /tmp/service_watchdog/service_watchdog/service_watchdog.sh /opt/service_watchdog/
+                cp /tmp/service_watchdog/service_watchdog/service_watchdog.cfg /opt/service_watchdog/
+                cp /tmp/service_watchdog/service_watchdog/test_service.log /var/log/
             02enable_service_watchdog:
               command: !Sub |
                 systemctl enable service_watchdog.service
