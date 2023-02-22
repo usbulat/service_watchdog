@@ -12,7 +12,7 @@ Parameters:
     Default: t3.micro
     ConstraintDescription: Must be a valid EC2 instance type.
   InstanceAMI:
-    Description: Managed AMI ID for EC2 Instance
+    Description: Managed AMI ID for EC2 Instance (Ubuntu 16.04)
     Type : String
     Default: ami-6e1a0117
   SSHLocation:
@@ -23,6 +23,16 @@ Parameters:
     Default: 0.0.0.0/0
     AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  VpcID:
+    Description: VPC for security group
+    Type: AWS::EC2::VPC::Id
+  SubnetID:
+    Description: Public subnet in which to launch an EC2
+    Type: AWS::EC2::Subnet::Id
+  AvailabilityZone:
+    Description: Availability Zone into which instance will launch
+    Type: AWS::EC2::AvailabilityZone::Name
+
 Resources:
   EC2Instance:
     Type: AWS::EC2::Instance
@@ -33,8 +43,15 @@ Resources:
         Ref: KeyName
       ImageId:
         Ref: InstanceAMI
-      SecurityGroups:
-        - Ref: InstanceSecurityGroup
+      AvailabilityZone: !Ref AvailabilityZone
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeleteOnTermination: true
+          DeviceIndex: "0"
+          GroupSet:
+            - Ref: InstanceSecurityGroup
+          SubnetId:
+            Ref: SubnetID
       UserData:
         Fn::Base64: !Sub |
            #!/bin/bash
@@ -115,9 +132,11 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Enable SSH access via port 22
+      VpcId:
+        Ref: VpcID
       SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: '22'
-        ToPort: '22'
-        CidrIp:
-          Ref: SSHLocation
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp:
+            Ref: SSHLocation
