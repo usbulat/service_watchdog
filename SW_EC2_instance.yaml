@@ -84,7 +84,7 @@ Resources:
                owner: root
                group: root
              "/lib/systemd/system/cfn-hup.service":
-                content: !Sub |
+                content: |
                   [Unit]
                   Description=cfn-hup daemon
                   [Service]
@@ -95,15 +95,15 @@ Resources:
                   WantedBy=multi-user.target
           commands:
             01enable_cfn_hup:
-              command: !Sub |
+              command: |
                 systemctl enable cfn-hup.service
             02start_cfn_hup:
-              command: !Sub |
+              command: |
                 systemctl start cfn-hup.service
         02_setup-service-watchdog:
           files:
              "/lib/systemd/system/service_watchdog.service":
-                content: !Sub |
+                content: |
                   [Unit]
                   Description=Service Watchdog
                   [Service]
@@ -116,17 +116,17 @@ Resources:
             "/tmp/service_watchdog/": "https://github.com/usbulat/service_watchdog/tarball/main"
           commands:
             01install_service_watchdog:
-              command: !Sub |
+              command: |
                 tar –xvf /tmp/service_watchdog/service_watchdog.tar –C /tmp/service_watchdog/
                 mkdir -p /opt/service_watchdog
                 cp /tmp/service_watchdog/service_watchdog/service_watchdog.sh /opt/service_watchdog/
                 cp /tmp/service_watchdog/service_watchdog/service_watchdog.cfg /opt/service_watchdog/
                 cp /tmp/service_watchdog/service_watchdog/test_service.log /var/log/
             02enable_service_watchdog:
-              command: !Sub |
+              command: |
                 systemctl enable service_watchdog.service
             03start_service_watchdog:
-              command: !Sub |
+              command: |
                 systemctl start service_watchdog.service
   InstanceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
